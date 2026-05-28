@@ -15,8 +15,8 @@ export function MoviePreferenceForm() {
   );
 
   return (
-    <form action={formAction} className="space-y-4">
-      <div className="space-y-2">
+    <form action={formAction} className="space-y-5">
+      <div className="space-y-2.5">
         <label
           className="block text-sm font-medium text-zinc-950"
           htmlFor="movieTitle"
@@ -24,7 +24,7 @@ export function MoviePreferenceForm() {
           Favorite movie
         </label>
         <input
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-950"
+          className="h-12 w-full rounded-md border border-zinc-300 bg-white px-3 text-base text-zinc-950 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-950 focus:ring-2 focus:ring-zinc-200"
           id="movieTitle"
           maxLength={120}
           minLength={2}
@@ -40,7 +40,7 @@ export function MoviePreferenceForm() {
         ) : null}
       </div>
       <button
-        className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+        className="inline-flex h-11 items-center justify-center rounded-md bg-zinc-950 px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
         disabled={isPending}
         type="submit"
       >

@@ -3,6 +3,7 @@ import {
   getFactForUser,
   MovieFactUnavailableError,
 } from "@/lib/facts/getFactForUser";
+import { acquireFactGenerationLock } from "@/lib/facts/factLock";
 import { prisma } from "@/lib/prisma";
 
 const testRunId = `fact-service-${Date.now()}`;
@@ -181,6 +182,44 @@ describe("getFactForUser", () => {
       source: "fallback",
     });
     expect(generateFact).toHaveBeenCalledOnce();
+  });
+
+  it("returns a stale fallback fact when another request owns the lock and no newer fact appears", async () => {
+    const user = await createTestUser("locked-fallback");
+    const now = new Date("2026-05-28T12:00:00.000Z");
+    const generateFact = vi.fn(async () => "should not be generated");
+
+    await prisma.movieFact.create({
+      data: {
+        userId: user.id,
+        movieTitle: "Jaws",
+        movieKey: "jaws",
+        fact: "older jaws fact",
+        createdAt: new Date(now.getTime() - 120_000),
+      },
+    });
+
+    const lock = await acquireFactGenerationLock({
+      userId: user.id,
+      movieKey: "jaws",
+      now,
+    });
+
+    expect(lock.acquired).toBe(true);
+
+    const result = await getFactForUser({
+      userId: user.id,
+      movieTitle: "Jaws",
+      movieKey: "jaws",
+      generateFact,
+      now,
+    });
+
+    expect(result).toMatchObject({
+      fact: "older jaws fact",
+      source: "fallback",
+    });
+    expect(generateFact).not.toHaveBeenCalled();
   });
 
   it("throws a friendly error when generation fails and no fact exists", async () => {

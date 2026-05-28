@@ -65,6 +65,13 @@ export async function getFactForUser({
       };
     }
 
+    if (cachedFact) {
+      return {
+        ...cachedFact,
+        source: "fallback" as const,
+      };
+    }
+
     throw new Error("A movie fact is already being generated. Try again soon.");
   }
 

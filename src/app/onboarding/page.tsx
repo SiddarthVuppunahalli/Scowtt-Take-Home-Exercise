@@ -21,21 +21,41 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-6 py-12">
-      <section className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold text-zinc-950">
-              Favorite movie
+    <main className="min-h-screen bg-[#f7f7f2] px-6 py-10 text-zinc-950">
+      <section className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-3xl items-center">
+        <div className="w-full rounded-lg border border-zinc-200 bg-white shadow-sm">
+          <div className="border-b border-zinc-200 px-6 py-5">
+            <p className="text-sm font-medium text-zinc-500">Movie Memory</p>
+            <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
+              Choose your favorite movie
             </h1>
-            <p className="text-sm leading-6 text-zinc-600">
-              Signed in as {session.user.email}. Choose the movie we should
-              remember for you.
-            </p>
           </div>
-          <MoviePreferenceForm />
-          <div className="border-t border-zinc-200 pt-6">
-            <SignOutButton />
+          <div className="grid gap-8 p-6 md:grid-cols-[1fr_0.85fr]">
+            <div className="space-y-5">
+              <p className="text-sm leading-6 text-zinc-600">
+                Signed in as{" "}
+                <span className="font-medium text-zinc-950">
+                  {session.user.email}
+                </span>
+                . We will trim and validate this on the server before saving.
+              </p>
+              <MoviePreferenceForm />
+            </div>
+            <div className="border-t border-zinc-200 pt-6 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-zinc-950">
+                  What happens next
+                </p>
+                <ol className="space-y-3 text-sm leading-6 text-zinc-600">
+                  <li>1. Your title is normalized for cache consistency.</li>
+                  <li>2. The display title is preserved for the dashboard.</li>
+                  <li>3. Facts are generated and cached per user and movie.</li>
+                </ol>
+              </div>
+              <div className="mt-8">
+                <SignOutButton />
+              </div>
+            </div>
           </div>
         </div>
       </section>
