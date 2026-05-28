@@ -55,6 +55,7 @@ export async function getFactForUser({
     const generatedByOtherRequest = await waitForGeneratedFact({
       userId,
       movieKey,
+      newerThan: cachedFact?.createdAt,
     });
 
     if (generatedByOtherRequest) {
@@ -137,13 +138,23 @@ async function findLatestFact(input: { userId: string; movieKey: string }) {
   });
 }
 
-async function waitForGeneratedFact(input: { userId: string; movieKey: string }) {
+async function waitForGeneratedFact(input: {
+  userId: string;
+  movieKey: string;
+  newerThan?: Date;
+}) {
   for (let attempt = 0; attempt < LOCK_WAIT_ATTEMPTS; attempt++) {
     await sleep(LOCK_WAIT_MS);
 
-    const latestFact = await findLatestFact(input);
+    const latestFact = await findLatestFact({
+      userId: input.userId,
+      movieKey: input.movieKey,
+    });
 
-    if (latestFact) {
+    if (
+      latestFact &&
+      (!input.newerThan || latestFact.createdAt > input.newerThan)
+    ) {
       return latestFact;
     }
   }
