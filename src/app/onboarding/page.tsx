@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/auth-buttons";
 import { prisma } from "@/lib/prisma";
+import { MoviePreferenceForm } from "./movie-preference-form";
 
 export default async function OnboardingPage() {
   const session = await auth();
@@ -28,10 +29,14 @@ export default async function OnboardingPage() {
               Favorite movie
             </h1>
             <p className="text-sm leading-6 text-zinc-600">
-              Signed in as {session.user.email}. The movie form comes next.
+              Signed in as {session.user.email}. Choose the movie we should
+              remember for you.
             </p>
           </div>
-          <SignOutButton />
+          <MoviePreferenceForm />
+          <div className="border-t border-zinc-200 pt-6">
+            <SignOutButton />
+          </div>
         </div>
       </section>
     </main>
