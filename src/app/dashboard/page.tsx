@@ -1,18 +1,24 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { SignInWithGoogleButton } from "@/components/auth-buttons";
+import { SignOutButton } from "@/components/auth-buttons";
 import { prisma } from "@/lib/prisma";
 
-export default async function Home() {
+export default async function DashboardPage() {
   const session = await auth();
 
-  if (session?.user) {
-    const preference = await prisma.moviePreference.findUnique({
-      where: { userId: session.user.id },
-      select: { id: true },
-    });
+  if (!session?.user) {
+    redirect("/");
+  }
 
-    redirect(preference ? "/dashboard" : "/onboarding");
+  const preference = await prisma.moviePreference.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      displayTitle: true,
+    },
+  });
+
+  if (!preference) {
+    redirect("/onboarding");
   }
 
   return (
@@ -20,15 +26,14 @@ export default async function Home() {
       <section className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold text-zinc-950">
-              Movie Memory
+            <h1 className="text-2xl font-semibold text-zinc-950">
+              Dashboard
             </h1>
             <p className="text-sm leading-6 text-zinc-600">
-              Save your favorite movie and get a fresh fun fact when you come
-              back.
+              Your favorite movie is {preference.displayTitle}.
             </p>
           </div>
-          <SignInWithGoogleButton />
+          <SignOutButton />
         </div>
       </section>
     </main>
