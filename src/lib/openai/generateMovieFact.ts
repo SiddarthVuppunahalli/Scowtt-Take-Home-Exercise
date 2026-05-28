@@ -1,9 +1,11 @@
 import OpenAI from "openai";
 
 const DEFAULT_OPENAI_MODEL = "gpt-4.1-mini";
+const OPENAI_TIMEOUT_MS = 10_000;
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  timeout: OPENAI_TIMEOUT_MS,
 });
 
 export async function generateMovieFact(movieTitle: string) {

@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/components/auth-buttons";
-import { getFactForUser } from "@/lib/facts/getFactForUser";
+import {
+  getFactForUser,
+  MovieFactUnavailableError,
+} from "@/lib/facts/getFactForUser";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
@@ -92,7 +95,7 @@ export default async function DashboardPage() {
                   {movieFactResult.fact}
                 </p>
                 <p className="text-xs text-zinc-500">
-                  Generated{" "}
+                  {getFactSourceLabel(movieFactResult.source)}{" "}
                   {movieFactResult.createdAt.toLocaleTimeString([], {
                     hour: "numeric",
                     minute: "2-digit",
@@ -123,14 +126,33 @@ async function getMovieFact(input: {
       ok: true as const,
       fact: movieFact.fact,
       createdAt: movieFact.createdAt,
+      source: movieFact.source,
     };
   } catch (error) {
+    if (error instanceof MovieFactUnavailableError) {
+      return {
+        ok: false as const,
+        message: error.message,
+      };
+    }
+
     console.error("Failed to generate movie fact", error);
 
     return {
       ok: false as const,
-      message:
-        "We could not generate a movie fact right now. Check the OpenAI API key and try again.",
+      message: "We could not load a movie fact right now. Try again soon.",
     };
   }
+}
+
+function getFactSourceLabel(source: "cache" | "fallback" | "generated") {
+  if (source === "cache") {
+    return "Loaded from cache";
+  }
+
+  if (source === "fallback") {
+    return "Showing last saved fact from";
+  }
+
+  return "Generated";
 }
