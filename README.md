@@ -17,7 +17,6 @@ Chosen variant: **Variant A - Backend-Focused caching and correctness**.
 
 I chose Variant A because the most interesting part of this app is not generating a fact once. It is deciding when not to call OpenAI, making sure facts are scoped to the right user, and handling the awkward cases like refresh bursts, stale data, and provider failures.
 
-
 ## Setup
 
 Install dependencies:
@@ -110,38 +109,38 @@ The main backend flow is:
 
 ```mermaid
 flowchart TD
-  Browser["Browser / React UI"]
-  Landing["/ landing page"]
-  Auth["Auth.js + Google OAuth"]
-  Session["Server auth() session"]
-  Onboarding["/onboarding server action"]
-  Dashboard["/dashboard server component"]
-  FactService["getFactForUser()"]
-  OpenAI["OpenAI Responses API"]
+  Browser[Browser and React UI]
+  Home[Home page]
+  Auth[Auth.js and Google OAuth]
+  Session[Server session]
+  Onboarding[Onboarding server action]
+  Dashboard[Dashboard server component]
+  FactService[Fact service]
+  OpenAI[OpenAI Responses API]
 
-  subgraph Postgres["Postgres via Prisma"]
-    AuthTables["User, Account, Session, VerificationToken"]
-    Preference["MoviePreference"]
-    Facts["MovieFact"]
-    Locks["FactGenerationLock"]
+  subgraph Database
+    AuthTables[Auth tables]
+    Preference[MoviePreference]
+    Facts[MovieFact]
+    Locks[FactGenerationLock]
   end
 
-  Browser --> Landing
-  Landing --> Auth
+  Browser --> Home
+  Home --> Auth
   Auth --> AuthTables
   Auth --> Session
-  Session -->|"no movie yet"| Onboarding
-  Session -->|"movie exists"| Dashboard
-  Onboarding -->|"validate, trim, normalize"| Preference
+  Session -->|No movie saved| Onboarding
+  Session -->|Movie exists| Dashboard
+  Onboarding -->|Validate and normalize| Preference
   Onboarding --> Dashboard
   Dashboard --> Preference
   Dashboard --> FactService
-  FactService -->|"fresh < 60s"| Facts
-  FactService -->|"stale or missing"| Locks
-  Locks -->|"lock acquired"| OpenAI
-  OpenAI -->|"generated fact"| Facts
-  OpenAI -->|"timeout or error"| Facts
-  Facts -->|"cache, generated, or fallback"| Dashboard
+  FactService -->|Fresh within 60 seconds| Facts
+  FactService -->|Stale or missing| Locks
+  Locks -->|Lock acquired| OpenAI
+  OpenAI -->|Generated fact| Facts
+  OpenAI -->|Timeout or error| Facts
+  Facts -->|Cache generated or fallback| Dashboard
   Dashboard --> Browser
 ```
 
@@ -280,5 +279,4 @@ The UI is intentionally minimal. I polished the layout enough to make the app pl
 - Used AI assistance to sanity-check the implementation plan and identify edge cases.
 - Used AI assistance while reasoning through Variant A tradeoffs, especially cache scoping, lock behavior, and fallback handling.
 - Used AI assistance to review and refine code, then verified behavior with linting, production build, Prisma validation, and backend tests.
-
 - Used official documentation for current Next.js/Auth.js/Prisma/OpenAI API patterns where version-specific behavior mattered.
